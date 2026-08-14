@@ -29,8 +29,16 @@
                 <label for="classSelect" class="font-semibold text-slate-700 whitespace-nowrap">Pilih Kelas:</label>
                 <select id="classSelect" onchange="filterData()" class="w-full md:w-48 bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2.5 outline-none font-medium">
                     <option value="ALL">Semua Kelas</option>
-                    <option value="10-A">Kelas 10-A</option>
-                    <option value="10-B">Kelas 10-B</option>
+                    <option value="7-A">Kelas 7-A</option>
+                    <option value="7-B">Kelas 7-B</option>
+                    <option value="7-C">Kelas 7-C</option>
+                    <option value="8-A">Kelas 8-A</option>
+                    <option value="8-B">Kelas 8-B</option>
+                    <option value="8-C">Kelas 8-C</option>
+                    <option value="8-D">Kelas 8-D</option>
+                    <option value="9-A">Kelas 9-A</option>
+                    <option value="9-B">Kelas 9-B</option>
+                    <option value="9-C">Kelas 9-C</option>
                 </select>
             </div>
 
@@ -103,8 +111,16 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">Kelas</label>
                         <select id="addKelas" class="w-full p-2.5 border rounded-lg text-sm bg-slate-50">
-                            <option value="10-A">10-A</option>
-                            <option value="10-B">10-B</option>
+                            <option value="7-A">7-A</option>
+                            <option value="7-B">7-B</option>
+                            <option value="7-C">7-C</option>
+                            <option value="8-A">8-A</option>
+                            <option value="8-B">8-B</option>
+                            <option value="8-C">8-C</option>
+                            <option value="8-D">8-D</option>
+                            <option value="9-A">9-A</option>
+                            <option value="9-B">9-B</option>
+                            <option value="9-C">9-C</option>
                         </select>
                     </div>
                     <div>
@@ -133,8 +149,8 @@
 
     <script>
         let studentsData = JSON.parse(localStorage.getItem('absensi_students')) || [
-            { id: 1, kelas: "10-A", nis: "1001", nama: "Ahmad Fauzi", gender: "L", attendance: ["H", "H", "H", "S", "H"] },
-            { id: 2, kelas: "10-A", nis: "1002", nama: "Budi Santoso", gender: "L", attendance: ["H", "H", "I", "H", "H"] }
+            { id: 1, kelas: "7-A", nis: "1001", nama: "Ahmad Fauzi", gender: "L", attendance: ["H", "H", "H", "S", "H"] },
+            { id: 2, kelas: "7-A", nis: "1002", nama: "Budi Santoso", gender: "L", attendance: ["H", "H", "I", "H", "H"] }
         ];
 
         function saveData() {
