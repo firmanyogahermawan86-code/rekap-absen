@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekap Kehadiran Siswa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 font-sans pb-12">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">Portal Rekap Kehadiran Siswa</h1>
+                <p class="text-indigo-200 text-sm mt-1">Klik pada kotak status (H/I/S/A) untuk merubah kehadiran dengan cepat!</p>
+            </div>
+            <button onclick="toggleModal()" class="bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-2 px-4 rounded-lg text-sm shadow transition">
+                + Tambah Siswa
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+
+        <!-- Controls Section -->
+        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md mb-6 border border-slate-100 flex flex-col md:flex-row gap-4 justify-between items-center">
+            <div class="w-full md:w-auto flex items-center gap-2">
+                <label for="classSelect" class="font-semibold text-slate-700 whitespace-nowrap">Pilih Kelas:</label>
+                <select id="classSelect" onchange="filterData()" class="w-full md:w-48 bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2.5 outline-none font-medium">
+                    <option value="ALL">Semua Kelas</option>
+                    <option value="10-A">Kelas 10-A</option>
+                    <option value="10-B">Kelas 10-B</option>
+                </select>
+            </div>
+
+            <div class="w-full md:w-80">
+                <input type="text" id="searchInput" onkeyup="filterData()" placeholder="Cari nama atau NIS siswa..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+            </div>
+        </div>
+
+        <!-- Ringkasan Total Absensi -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-center">
+                <span class="block text-xs font-bold text-emerald-600 uppercase tracking-wider">Hadir (H)</span>
+                <span id="statHadir" class="text-2xl font-extrabold text-emerald-800">0</span>
+            </div>
+            <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-center">
+                <span class="block text-xs font-bold text-blue-600 uppercase tracking-wider">Izin (I)</span>
+                <span id="statIzin" class="text-2xl font-extrabold text-blue-800">0</span>
+            </div>
+            <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center">
+                <span class="block text-xs font-bold text-amber-600 uppercase tracking-wider">Sakit (S)</span>
+                <span id="statSakit" class="text-2xl font-extrabold text-amber-800">0</span>
+            </div>
+            <div class="bg-rose-50 border border-rose-200 p-4 rounded-xl text-center">
+                <span class="block text-xs font-bold text-rose-600 uppercase tracking-wider">Alpa (A)</span>
+                <span id="statAlpa" class="text-2xl font-extrabold text-rose-800">0</span>
+            </div>
+        </div>
+
+        <!-- Tabel Rekap -->
+        <div class="bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="text-xs uppercase bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                        <tr>
+                            <th class="px-4 py-3 text-center">No</th>
+                            <th class="px-4 py-3 text-center">Kelas</th>
+                            <th class="px-4 py-3 text-center">NIS</th>
+                            <th class="px-4 py-3">Nama Siswa</th>
+                            <th class="px-4 py-3 text-center">L/P</th>
+                            <th class="px-3 py-3 text-center bg-slate-200/50">01/08</th>
+                            <th class="px-3 py-3 text-center bg-slate-200/50">02/08</th>
+                            <th class="px-3 py-3 text-center bg-slate-200/50">03/08</th>
+                            <th class="px-3 py-3 text-center bg-slate-200/50">04/08</th>
+                            <th class="px-3 py-3 text-center bg-slate-200/50">05/08</th>
+                            <th class="px-3 py-3 text-center text-emerald-700 bg-emerald-50">H</th>
+                            <th class="px-3 py-3 text-center text-blue-700 bg-blue-50">I</th>
+                            <th class="px-3 py-3 text-center text-amber-700 bg-amber-50">S</th>
+                            <th class="px-3 py-3 text-center text-rose-700 bg-rose-50">A</th>
+                            <th class="px-4 py-3 text-center bg-indigo-50 text-indigo-700">% Hadir</th>
+                            <th class="px-4 py-3 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceBody" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+            
+            <div id="noDataMessage" class="hidden text-center py-12 text-slate-400">
+                <p class="text-base font-medium">Siswa tidak ditemukan</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Form Tambah Siswa -->
+    <div id="studentModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 class="text-lg font-bold text-slate-800 mb-4">Tambah Siswa Baru</h3>
+            <form onsubmit="addStudent(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Kelas</label>
+                        <select id="addKelas" class="w-full p-2.5 border rounded-lg text-sm bg-slate-50">
+                            <option value="10-A">10-A</option>
+                            <option value="10-B">10-B</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">NIS</label>
+                        <input type="text" id="addNis" placeholder="Contoh: 1010" required class="w-full p-2.5 border rounded-lg text-sm bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap</label>
+                        <input type="text" id="addNama" placeholder="Nama Siswa" required class="w-full p-2.5 border rounded-lg text-sm bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Jenis Kelamin</label>
+                        <select id="addGender" class="w-full p-2.5 border rounded-lg text-sm bg-slate-50">
+                            <option value="L">Laki-laki (L)</option>
+                            <option value="P">Perempuan (P)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="toggleModal()" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Batal</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let studentsData = JSON.parse(localStorage.getItem('absensi_students')) || [
+            { id: 1, kelas: "10-A", nis: "1001", nama: "Ahmad Fauzi", gender: "L", attendance: ["H", "H", "H", "S", "H"] },
+            { id: 2, kelas: "10-A", nis: "1002", nama: "Budi Santoso", gender: "L", attendance: ["H", "H", "I", "H", "H"] }
+        ];
+
+        function saveData() {
+            localStorage.setItem('absensi_students', JSON.stringify(studentsData));
+            filterData();
+        }
+
+        function toggleModal() {
+            document.getElementById('studentModal').classList.toggle('hidden');
+        }
+
+        function addStudent(e) {
+            e.preventDefault();
+            const newStudent = {
+                id: Date.now(),
+                kelas: document.getElementById('addKelas').value,
+                nis: document.getElementById('addNis').value,
+                nama: document.getElementById('addNama').value,
+                gender: document.getElementById('addGender').value,
+                attendance: ["H", "H", "H", "H", "H"]
+            };
+
+            studentsData.push(newStudent);
+            saveData();
+            
+            document.getElementById('addNis').value = '';
+            document.getElementById('addNama').value = '';
+            toggleModal();
+        }
+
+        function deleteStudent(id) {
+            if(confirm("Apakah Anda yakin ingin menghapus siswa ini?")) {
+                studentsData = studentsData.filter(s => s.id !== id);
+                saveData();
+            }
+        }
+
+        // Fungsi Cepat: Klik untuk ubah status kehadiran (H -> I -> S -> A -> H)
+        function toggleAttendance(studentId, dayIndex) {
+            const student = studentsData.find(s => s.id === studentId);
+            if (!student) return;
+
+            const statuses = ['H', 'I', 'S', 'A'];
+            const currentStatus = student.attendance[dayIndex] || 'H';
+            const nextIndex = (statuses.indexOf(currentStatus) + 1) % statuses.length;
+            
+            student.attendance[dayIndex] = statuses[nextIndex];
+            saveData();
+        }
+
+        function renderBadge(status, studentId, dayIndex) {
+            let color = '';
+            switch(status) {
+                case 'H': color = 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'; break;
+                case 'I': color = 'bg-blue-100 text-blue-700 hover:bg-blue-200'; break;
+                case 'S': color = 'bg-amber-100 text-amber-700 hover:bg-amber-200'; break;
+                case 'A': color = 'bg-rose-100 text-rose-700 hover:bg-rose-200'; break;
+                default: color = 'bg-slate-100 text-slate-500';
+            }
+
+            return `<button onclick="toggleAttendance(${studentId}, ${dayIndex})" 
+                            title="Klik untuk mengubah status"
+                            class="w-7 h-7 rounded font-bold text-xs transition cursor-pointer active:scale-90 ${color}">
+                        ${status}
+                    </button>`;
+        }
+
+        function filterData() {
+            const selectedClass = document.getElementById('classSelect').value;
+            const searchKeyword = document.getElementById('searchInput').value.toLowerCase();
+            const tbody = document.getElementById('attendanceBody');
+            const noDataMsg = document.getElementById('noDataMessage');
+
+            tbody.innerHTML = '';
+
+            let filtered = studentsData.filter(student => {
+                const matchClass = (selectedClass === 'ALL') || (student.kelas === selectedClass);
+                const matchSearch = student.nama.toLowerCase().includes(searchKeyword) || student.nis.includes(searchKeyword);
+                return matchClass && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                noDataMsg.classList.remove('hidden');
+                updateStats(0, 0, 0, 0);
+                return;
+            } else {
+                noDataMsg.classList.add('hidden');
+            }
+
+            let totH = 0, totI = 0, totS = 0, totA = 0;
+
+            filtered.forEach((student, index) => {
+                const countH = student.attendance.filter(x => x === 'H').length;
+                const countI = student.attendance.filter(x => x === 'I').length;
+                const countS = student.attendance.filter(x => x === 'S').length;
+                const countA = student.attendance.filter(x => x === 'A').length;
+
+                totH += countH; totI += countI; totS += countS; totA += countA;
+                const percentage = Math.round((countH / student.attendance.length) * 100);
+
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-50 transition-colors";
+                row.innerHTML = `
+                    <td class="px-4 py-3 text-center font-medium text-slate-500">${index + 1}</td>
+                    <td class="px-4 py-3 text-center"><span class="px-2 py-1 text-xs bg-slate-100 border rounded font-semibold text-slate-600">${student.kelas}</span></td>
+                    <td class="px-4 py-3 text-center font-mono text-xs">${student.nis}</td>
+                    <td class="px-4 py-3 font-semibold text-slate-800">${student.nama}</td>
+                    <td class="px-4 py-3 text-center text-xs text-slate-500">${student.gender}</td>
+                    ${student.attendance.map((status, dayIdx) => `<td class="px-3 py-3 text-center">${renderBadge(status, student.id, dayIdx)}</td>`).join('')}
+                    <td class="px-3 py-3 text-center font-bold text-emerald-600 bg-emerald-50/50">${countH}</td>
+                    <td class="px-3 py-3 text-center font-bold text-blue-600 bg-blue-50/50">${countI}</td>
+                    <td class="px-3 py-3 text-center font-bold text-amber-600 bg-amber-50/50">${countS}</td>
+                    <td class="px-3 py-3 text-center font-bold text-rose-600 bg-rose-50/50">${countA}</td>
+                    <td class="px-4 py-3 text-center font-bold text-indigo-600 bg-indigo-50/50">${percentage}%</td>
+                    <td class="px-4 py-3 text-center">
+                        <button onclick="deleteStudent(${student.id})" class="text-xs text-rose-500 hover:text-rose-700 font-semibold">Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            updateStats(totH, totI, totS, totA);
+        }
+
+        function updateStats(h, i, s, a) {
+            document.getElementById('statHadir').innerText = h;
+            document.getElementById('statIzin').innerText = i;
+            document.getElementById('statSakit').innerText = s;
+            document.getElementById('statAlpa').innerText = a;
+        }
+
+        filterData();
+    </script>
+</body>
+</html>
