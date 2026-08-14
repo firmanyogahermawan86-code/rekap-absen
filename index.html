@@ -32,8 +32,8 @@
                     <label for="classSelect" class="font-semibold text-slate-700 whitespace-nowrap text-sm">Kelas:</label>
                     <select id="classSelect" onchange="filterData()" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg p-2.5 outline-none font-medium">
                         <option value="ALL">Semua Kelas</option>
-                        <option value="10-A">Kelas 10-A</option>
-                        <option value="10-B">Kelas 10-B</option>
+                        <option value="7-A">Kelas 7-A</option>
+                        <option value="7-B">Kelas 7-B</option>
                     </select>
                 </div>
 
@@ -102,8 +102,8 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">Kelas</label>
                         <select id="addKelas" class="w-full p-2.5 border rounded-lg text-sm bg-slate-50">
-                            <option value="10-A">10-A</option>
-                            <option value="10-B">10-B</option>
+                            <option value="7-A">7-A</option>
+                            <option value="7-B">7-B</option>
                         </select>
                     </div>
                     <div>
@@ -136,8 +136,8 @@
 
         // Data Siswa
         let studentsData = JSON.parse(localStorage.getItem('absensi_students')) || [
-            { id: 1, kelas: "10-A", nis: "1001", nama: "Ahmad Fauzi", gender: "L", attendance: ["H", "H", "H", "S", "H"] },
-            { id: 2, kelas: "10-A", nis: "1002", nama: "Budi Santoso", gender: "L", attendance: ["H", "H", "I", "H", "H"] }
+            { id: 1, kelas: "7-A", nis: "1001", nama: "Ahmad Fauzi", gender: "L", attendance: ["H", "H", "H", "S", "H"] },
+            { id: 2, kelas: "7-A", nis: "1002", nama: "Budi Santoso", gender: "L", attendance: ["H", "H", "I", "H", "H"] }
         ];
 
         function saveData() {
