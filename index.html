@@ -15,9 +15,12 @@
                 <h1 class="text-2xl font-bold tracking-tight">Portal Rekap Kehadiran Siswa</h1>
                 <p class="text-indigo-200 text-sm mt-1">Ubah data kehadiran, lalu klik tombol download untuk memperbarui file HTML secara permanen.</p>
             </div>
-            <div class="flex gap-2">
+            <div class="flex flex-wrap gap-2">
                 <button onclick="downloadHTML()" class="bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-2 px-4 rounded-lg text-sm shadow transition flex items-center gap-2">
                     💾 Download HTML Terkini
+                </button>
+                <button onclick="toggleUploadModal()" class="bg-amber-500 hover:bg-amber-400 text-white font-bold py-2 px-4 rounded-lg text-sm shadow transition">
+                    📁 Upload CSV
                 </button>
                 <button onclick="toggleModal()" class="bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-2 px-4 rounded-lg text-sm shadow transition">
                     + Tambah Siswa
@@ -113,7 +116,7 @@
 
     </main>
 
-    <!-- Modal Form Tambah Siswa -->
+    <!-- Modal Form Tambah Siswa (Manual) -->
     <div id="studentModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
             <h3 class="text-lg font-bold text-slate-800 mb-4">Tambah Siswa Baru</h3>
@@ -154,6 +157,27 @@
                 <div class="flex justify-end gap-2 mt-6">
                     <button type="button" onclick="toggleModal()" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Batal</button>
                     <button type="submit" class="px-4 py-2 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Upload File CSV -->
+    <div id="uploadModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 class="text-lg font-bold text-slate-800 mb-2">Upload Data Siswa (CSV)</h3>
+            <p class="text-xs text-slate-500 mb-4">Pastikan file `.csv` yang di-upload berformat kolom: <br><code class="bg-slate-100 p-1 rounded font-mono text-indigo-600">kelas,nis,nama,gender</code></p>
+            
+            <form onsubmit="handleCSVUpload(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Pilih File CSV</label>
+                        <input type="file" id="csvFileInput" accept=".csv" required class="w-full p-2 border rounded-lg text-sm bg-slate-50">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="toggleUploadModal()" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Batal</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded-lg">Upload Data</button>
                 </div>
             </form>
         </div>
@@ -238,6 +262,10 @@
             document.getElementById('studentModal').classList.toggle('hidden');
         }
 
+        function toggleUploadModal() {
+            document.getElementById('uploadModal').classList.toggle('hidden');
+        }
+
         function addDateColumn() {
             const dateVal = document.getElementById('newDateInput').value;
             if(!dateVal) return alert("Pilih tanggal terlebih dahulu!");
@@ -288,6 +316,52 @@
             document.getElementById('addNis').value = '';
             document.getElementById('addNama').value = '';
             toggleModal();
+        }
+
+        // --- FITUR UPLOAD FILE CSV ---
+        function handleCSVUpload(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('csvFileInput');
+            const file = fileInput.files[0];
+
+            if (!file) return alert("Silakan pilih file CSV!");
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const text = event.target.result;
+                const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+                if (lines.length <= 1) {
+                    return alert("File CSV kosong atau hanya berisi header!");
+                }
+
+                let addedCount = 0;
+                // Asumsi baris 0 adalah Header: kelas,nis,nama,gender
+                for (let i = 1; i < lines.length; i++) {
+                    const columns = lines[i].split(',').map(col => col.trim().replace(/^["']|["']$/g, ''));
+                    if (columns.length >= 4) {
+                        const [kelas, nis, nama, gender] = columns;
+                        
+                        const initialAttendance = new Array(datesData.length).fill('H');
+                        studentsData.push({
+                            id: Date.now() + i,
+                            kelas: kelas,
+                            nis: nis,
+                            nama: nama,
+                            gender: gender.toUpperCase(),
+                            attendance: initialAttendance
+                        });
+                        addedCount++;
+                    }
+                }
+
+                saveData();
+                toggleUploadModal();
+                fileInput.value = '';
+                alert(`Berhasil menambahkan ${addedCount} data siswa baru!`);
+            };
+
+            reader.readAsText(file);
         }
 
         function deleteStudent(id) {
@@ -418,65 +492,6 @@
             document.getElementById('statIzin').innerText = i;
             document.getElementById('statSakit').innerText = s;
             document.getElementById('statAlpa').innerText = a;
-        }
-// --- FUNGSI UPLOAD DATA (CSV/JSON) ---
-        function processUploadedFile() {
-            const fileInput = document.getElementById('importFileInput');
-            const file = fileInput.files[0];
-
-            if (!file) {
-                return alert("Silakan pilih file CSV atau JSON terlebih dahulu!");
-            }
-
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                const content = e.target.result;
-                let newStudentsArr = [];
-
-                try {
-                    if (file.name.endsWith('.json')) {
-                        newStudentsArr = JSON.parse(content);
-                    } else if (file.name.endsWith('.csv')) {
-                        const lines = content.split('\n');
-                        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-
-                        for (let i = 1; i < lines.length; i++) {
-                            if (!lines[i].trim()) continue;
-                            const values = lines[i].split(',').map(v => v.trim());
-                            
-                            let obj = {};
-                            headers.forEach((header, index) => {
-                                obj[header] = values[index] || '';
-                            });
-
-                            if (obj.nama && obj.nis) {
-                                newStudentsArr.push({
-                                    id: Date.now() + i,
-                                    kelas: obj.kelas || "10-A",
-                                    nis: obj.nis,
-                                    nama: obj.nama,
-                                    gender: (obj.gender || "L").toUpperCase(),
-                                    attendance: new Array(attendanceDates.length).fill('H')
-                                });
-
-                    if (newStudentsArr.length === 0) {
-                        return alert("Gagal membaca data dari file! Pastikan format kolom sesuai.");
-                    }
-
-                    // Gabungkan data baru ke daftar siswa yang ada
-                    studentsData = [...studentsData, ...newStudentsArr];
-                    saveData();
-                    toggleUploadModal();
-                    fileInput.value = '';
-                    alert(`Berhasil menambahkan ${newStudentsArr.length} siswa baru!`);
-
-                } catch (err) {
-                    alert("Terjadi kesalahan saat memproses file: " + err.message);
-                }
-            };
-
-            reader.readAsText(file);
         }
 
         // --- FITUR DOWNLOAD FILE HTML BARU PERMANEN ---
