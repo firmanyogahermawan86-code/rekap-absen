@@ -152,10 +152,35 @@
 
         // Data Siswa
         let studentsData = JSON.parse(localStorage.getItem('absensi_students')) || [
-            { id: 1, kelas: "7-A", nis: "121232170060267001", nama: "Ahmad Fauzi", gender: "L", attendance: ["H", "H", "H", "S", "H"] },
-            { id: 2, kelas: "7-A", nis: "121232170060267010", nama: "Budi Santoso", gender: "L", attendance: ["H", "H", "I", "H", "H"] }
-            { id: 3, kelas: "7-A", nis: "121232170060267010", nama: "", gender: "", attendance: ["H", "H", "I", "H", "H"] }
-            
+            { id: 1, kelas: "7-A", nis: "121232170060267001", nama: "ADAM PUTRA", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 2, kelas: "7-A", nis: "121232170060267010", nama: "ALGIFARI ARDIANSYAH", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 3, kelas: "7-A", nis: "121232170060267012", nama: "ALIKA DWI FITRIA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 4, kelas: "7-A", nis: "121232170060267014", nama: "AMANDA NUR INDRIYANI", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 5, kelas: "7-A", nis: "121232170060267016", nama: "ANDIKA SYAH PUTRA", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 6, kelas: "7-A", nis: "121232170060267019", nama: "ARRIZKAR NURAHMAN", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 7, kelas: "7-A", nis: "121232170060267022", nama: "AZAHRA DESWITA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 8, kelas: "7-A", nis: "121232170060267023", nama: "AZKA MAHER AL GHIFARI", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 9, kelas: "7-A", nis: "121232170060267026", nama: "DELISA HERLIANI PUTRI", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 10, kelas: "7-A", nis: "121232170060267028", nama: "FAIZAL IMANUL HAKIM", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 11, kelas: "7-A", nis: "121232170060267029", nama: "FEBI ADELIA PUTRI", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 12, kelas: "7-A", nis: "121232170060267031", nama: "FIRA UZMA SAHIRA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 13, kelas: "7-A", nis: "121232170060267032", nama: "HADYTIA PRAYOGA", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 14, kelas: "7-A", nis: "121232170060267034", nama: "IBRAHIM YUSUF KAMIL", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 15, kelas: "7-A", nis: "121232170060267041", nama: "LAELI NUR ROHIMAH", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 16, kelas: "7-A", nis: "121232170060267050", nama: "NAIA HERLYAN ASMARA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 17, kelas: "7-A", nis: "121232170060267053", nama: "NAZUAR RAMDANI", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 18, kelas: "7-A", nis: "121232170060267056", nama: "PANDU ROHMAN", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 19, kelas: "7-A", nis: "121232170060267059", nama: "RAISA ANGGRAENI MUHTAR", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 20, kelas: "7-A", nis: "121232170060267061", nama: "RAKA KAMALUDIN ILHAM", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 21, kelas: "7-A", nis: "121232170060267066", nama: "REVA NUR AENI", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 22, kelas: "7-A", nis: "121232170060267070", nama: "SAHRUL RAMADAN", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 23, kelas: "7-A", nis: "121232170060267071", nama: "SALMAN ABIDZAR AFANDI", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 24, kelas: "7-A", nis: "121232170060267074", nama: "SHONA NURHASANAH", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 25, kelas: "7-A", nis: "121232170060267076", nama: "SRI WAHYUNI APRILIA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 26, kelas: "7-A", nis: "121232170060267077", nama: "TANTRI PUTRI ZAHIRA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 27, kelas: "7-A", nis: "121232170060267078", nama: "UJANG SANDI", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 28, kelas: "7-A", nis: "121232170060267083", nama: "ZAHRA FAUZIA ASYIFA", gender: "P", attendance: ["H", "H", "H", "H", "H"] }
+
         ];
 
         function saveData() {
