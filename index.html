@@ -10,14 +10,19 @@
 
     <!-- Header -->
     <header class="bg-indigo-600 text-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">Portal Rekap Kehadiran Siswa</h1>
-                <p class="text-indigo-200 text-sm mt-1">Tambah tanggal/bulan dan klik kotak H/I/S/A untuk ubah status absensi.</p>
+                <p class="text-indigo-200 text-sm mt-1">Ubah data kehadiran, lalu klik tombol download untuk memperbarui file HTML secara permanen.</p>
             </div>
-            <button onclick="toggleModal()" class="bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-2 px-4 rounded-lg text-sm shadow transition">
-                + Tambah Siswa
-            </button>
+            <div class="flex gap-2">
+                <button onclick="downloadHTML()" class="bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-2 px-4 rounded-lg text-sm shadow transition flex items-center gap-2">
+                    💾 Download HTML Terkini
+                </button>
+                <button onclick="toggleModal()" class="bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-2 px-4 rounded-lg text-sm shadow transition">
+                    + Tambah Siswa
+                </button>
+            </div>
         </div>
     </header>
 
@@ -32,16 +37,23 @@
                     <label for="classSelect" class="font-semibold text-slate-700 whitespace-nowrap text-sm">Kelas:</label>
                     <select id="classSelect" onchange="filterData()" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg p-2.5 outline-none font-medium">
                         <option value="ALL">Semua Kelas</option>
-                        <option value="7-A">Kelas 7-A</option>
-                        <option value="7-B">Kelas 7-B</option>
-                        <option value="7-C">Kelas 7-C</option>
-                        <option value="8-A">Kelas 8-A</option>
-                        <option value="8-B">Kelas 8-B</option>
-                        <option value="8-C">Kelas 8-C</option>
-                        <option value="8-D">Kelas 8-D</option>
-                        <option value="9-A">Kelas 9-A</option>
-                        <option value="9-B">Kelas 9-B</option>
-                        <option value="9-C">Kelas 9-C</option>
+                        <optgroup label="Kelas 7">
+                            <option value="7-A">Kelas 7-A</option>
+                            <option value="7-B" selected>Kelas 7-B</option>
+                            <option value="7-C">Kelas 7-C</option>
+                        </optgroup>
+                        <optgroup label="Kelas 8">
+                            <option value="8-A">Kelas 8-A</option>
+                            <option value="8-B">Kelas 8-B</option>
+                            <option value="8-C">Kelas 8-C</option>
+                            <option value="8-D">Kelas 8-D</option>
+                        </optgroup>
+                        <optgroup label="Kelas 9">
+                            <option value="9-A">Kelas 9-A</option>
+                            <option value="9-B">Kelas 9-B</option>
+                            <option value="9-C">Kelas 9-C</option>
+                            <option value="9-D">Kelas 9-D</option>
+                        </optgroup>
                     </select>
                 </div>
 
@@ -111,7 +123,7 @@
                         <label class="block text-xs font-bold text-slate-600 mb-1">Kelas</label>
                         <select id="addKelas" class="w-full p-2.5 border rounded-lg text-sm bg-slate-50">
                             <option value="7-A">7-A</option>
-                            <option value="7-B">7-B</option>
+                            <option value="7-B" selected>7-B</option>
                             <option value="7-C">7-C</option>
                             <option value="8-A">8-A</option>
                             <option value="8-B">8-B</option>
@@ -120,11 +132,12 @@
                             <option value="9-A">9-A</option>
                             <option value="9-B">9-B</option>
                             <option value="9-C">9-C</option>
+                            <option value="9-D">9-D</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">NIS</label>
-                        <input type="text" id="addNis" placeholder="Contoh: 1010" required class="w-full p-2.5 border rounded-lg text-sm bg-slate-50">
+                        <input type="text" id="addNis" placeholder="Contoh: 121232170060267002" required class="w-full p-2.5 border rounded-lg text-sm bg-slate-50">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap</label>
@@ -147,11 +160,12 @@
     </div>
 
     <script>
-        // Data tanggal rekap (Bisa ditambah/dihapus)
-        let attendanceDates = JSON.parse(localStorage.getItem('absensi_dates')) || ["03/08", "04/08", "05/08", "06/08", "07/08","10/08", "11/08", "12/08", "13/08", "14/08","18/08", "19/08", "20/08", "21/08", "24/08","25/08","26/08","27/08", "28/08", "31/08"];
+        // Data tanggal rekap
+        let attendanceDates = ["01/08", "02/08", "03/08", "04/08", "05/08"];
 
-        // Data Siswa
-        let studentsData = JSON.parse(localStorage.getItem('absensi_students')) || [
+        // Data Siswa Lengkap
+        let defaultStudents = [
+            // --- KELAS 7-A ---
             { id: 1, kelas: "7-A", nis: "121232170060267001", nama: "ADAM PUTRA", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
             { id: 2, kelas: "7-A", nis: "121232170060267010", nama: "ALGIFARI ARDIANSYAH", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
             { id: 3, kelas: "7-A", nis: "121232170060267012", nama: "ALIKA DWI FITRIA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
@@ -179,13 +193,44 @@
             { id: 25, kelas: "7-A", nis: "121232170060267076", nama: "SRI WAHYUNI APRILIA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
             { id: 26, kelas: "7-A", nis: "121232170060267077", nama: "TANTRI PUTRI ZAHIRA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
             { id: 27, kelas: "7-A", nis: "121232170060267078", nama: "UJANG SANDI", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
-            { id: 28, kelas: "7-A", nis: "121232170060267083", nama: "ZAHRA FAUZIA ASYIFA", gender: "P", attendance: ["H", "H", "H", "H", "H"] }
+            { id: 28, kelas: "7-A", nis: "121232170060267083", nama: "ZAHRA FAUZIA ASYIFA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
 
+            // --- KELAS 7-B ---
+            { id: 29, kelas: "7-B", nis: "121232170060267002", nama: "ADITYA PRATAMA", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 30, kelas: "7-B", nis: "121232170060267003", nama: "AFRIZAL NUGRAHA", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 31, kelas: "7-B", nis: "121232170060267005", nama: "AGUS RIZAL", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 32, kelas: "7-B", nis: "121232170060267006", nama: "AHMAD FIRMANSYAH", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 33, kelas: "7-B", nis: "121232170060267008", nama: "AHMAD RULI MAULANA", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 34, kelas: "7-B", nis: "121232170060267009", nama: "ALBIAN MIFTAH FAUZAN", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 35, kelas: "7-B", nis: "121232170060267013", nama: "ALIN PUTRI SEPTIA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 36, kelas: "7-B", nis: "121232170060267015", nama: "AMELIA SAPUTRI", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 37, kelas: "7-B", nis: "121232170060267017", nama: "ANGGINA PRISILL VHANESSA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 38, kelas: "7-B", nis: "121232170060267018", nama: "APIN DARMAWAN", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 39, kelas: "7-B", nis: "121232170060267020", nama: "ARDELIA RAISA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 40, kelas: "7-B", nis: "121232170060267021", nama: "AYU CHINTIA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 41, kelas: "7-B", nis: "121232170060267024", nama: "CICI", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 42, kelas: "7-B", nis: "121232170060267025", nama: "DEKHA AQUILA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 43, kelas: "7-B", nis: "121232170060267027", nama: "DENDI SOPIAN", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 44, kelas: "7-B", nis: "121232170060267030", nama: "FINA NUR OKTAVIANI", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 45, kelas: "7-B", nis: "121232170060267033", nama: "HANIFAH NURAZIZAH", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 46, kelas: "7-B", nis: "121232170060267039", nama: "KHODIJAH FITRIANI PUTRI", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 47, kelas: "7-B", nis: "121232170060267044", nama: "MUHAMAD ARYAN ZAKIR", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 48, kelas: "7-B", nis: "121232170060267045", nama: "MUHAMAD NOVAL NURALFARIJKI", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 49, kelas: "7-B", nis: "121232170060267048", nama: "MUHAMMAD RAFI FIRMANSYAH", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 50, kelas: "7-B", nis: "121232170060267049", nama: "MUHAMMAD REVAN ALFARIZI", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 51, kelas: "7-B", nis: "121232170060267055", nama: "NOVAL DWI SAPUTRA", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 52, kelas: "7-B", nis: "121232170060267067", nama: "REZA YUSUF ALFARISI", gender: "L", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 53, kelas: "7-B", nis: "121232170060267072", nama: "SAPUTRI OKTAVIA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 54, kelas: "7-B", nis: "121232170060267084", nama: "ZAHIRA ISLAH HANIFA", gender: "P", attendance: ["H", "H", "H", "H", "H"] },
+            { id: 55, kelas: "7-B", nis: "121232170060267085", nama: "ZASKIA JULIANI", gender: "P", attendance: ["H", "H", "H", "H", "H"] }
         ];
+
+        let studentsData = JSON.parse(localStorage.getItem('absensi_students')) || defaultStudents;
+        let datesData = JSON.parse(localStorage.getItem('absensi_dates')) || attendanceDates;
 
         function saveData() {
             localStorage.setItem('absensi_students', JSON.stringify(studentsData));
-            localStorage.setItem('absensi_dates', JSON.stringify(attendanceDates));
+            localStorage.setItem('absensi_dates', JSON.stringify(datesData));
             filterData();
         }
 
@@ -193,22 +238,19 @@
             document.getElementById('studentModal').classList.toggle('hidden');
         }
 
-        // Tambah Kolom Tanggal Baru
         function addDateColumn() {
             const dateVal = document.getElementById('newDateInput').value;
             if(!dateVal) return alert("Pilih tanggal terlebih dahulu!");
 
-            // Format dari YYYY-MM-DD ke DD/MM
             const [year, month, day] = dateVal.split('-');
             const formattedDate = `${day}/${month}`;
 
-            if(attendanceDates.includes(formattedDate)) {
+            if(datesData.includes(formattedDate)) {
                 return alert("Tanggal ini sudah ada di tabel!");
             }
 
-            attendanceDates.push(formattedDate);
+            datesData.push(formattedDate);
             
-            // Beri status default 'H' untuk tanggal baru ini di semua siswa
             studentsData.forEach(student => {
                 student.attendance.push('H');
             });
@@ -217,10 +259,9 @@
             document.getElementById('newDateInput').value = '';
         }
 
-        // Hapus Kolom Tanggal
         function removeDateColumn(index) {
-            if(confirm(`Hapus kolom tanggal ${attendanceDates[index]}?`)) {
-                attendanceDates.splice(index, 1);
+            if(confirm(`Hapus kolom tanggal ${datesData[index]}?`)) {
+                datesData.splice(index, 1);
                 studentsData.forEach(student => {
                     student.attendance.splice(index, 1);
                 });
@@ -230,8 +271,7 @@
 
         function addStudent(e) {
             e.preventDefault();
-            // Inisialisasi status 'H' sejumlah tanggal yang ada
-            const initialAttendance = new Array(attendanceDates.length).fill('H');
+            const initialAttendance = new Array(datesData.length).fill('H');
 
             const newStudent = {
                 id: Date.now(),
@@ -280,7 +320,7 @@
             }
 
             return `<button onclick="toggleAttendance(${studentId}, ${dayIndex})" 
-                            title="Klik untuk merubah"
+                            title="Klik untuk mengubah status"
                             class="w-7 h-7 rounded font-bold text-xs transition cursor-pointer active:scale-90 ${color}">
                         ${status || 'H'}
                     </button>`;
@@ -293,7 +333,6 @@
             const theadRow = document.getElementById('tableHeader');
             const noDataMsg = document.getElementById('noDataMessage');
 
-            // Render Header Tabel Dinamis
             let headerHTML = `
                 <th class="px-4 py-3 text-center">No</th>
                 <th class="px-4 py-3 text-center">Kelas</th>
@@ -302,7 +341,7 @@
                 <th class="px-4 py-3 text-center">L/P</th>
             `;
 
-            attendanceDates.forEach((dateStr, idx) => {
+            datesData.forEach((dateStr, idx) => {
                 headerHTML += `
                     <th class="px-3 py-3 text-center bg-slate-200/50 group relative">
                         <span>${dateStr}</span>
@@ -347,7 +386,7 @@
 
                 totH += countH; totI += countI; totS += countS; totA += countA;
                 
-                const totalDays = attendanceDates.length || 1;
+                const totalDays = datesData.length || 1;
                 const percentage = Math.round((countH / totalDays) * 100);
 
                 const row = document.createElement('tr');
@@ -358,7 +397,7 @@
                     <td class="px-4 py-3 text-center font-mono text-xs">${student.nis}</td>
                     <td class="px-4 py-3 font-semibold text-slate-800">${student.nama}</td>
                     <td class="px-4 py-3 text-center text-xs text-slate-500">${student.gender}</td>
-                    ${attendanceDates.map((_, dayIdx) => `<td class="px-3 py-3 text-center">${renderBadge(student.attendance[dayIdx], student.id, dayIdx)}</td>`).join('')}
+                    ${datesData.map((_, dayIdx) => `<td class="px-3 py-3 text-center">${renderBadge(student.attendance[dayIdx], student.id, dayIdx)}</td>`).join('')}
                     <td class="px-3 py-3 text-center font-bold text-emerald-600 bg-emerald-50/50">${countH}</td>
                     <td class="px-3 py-3 text-center font-bold text-blue-600 bg-blue-50/50">${countI}</td>
                     <td class="px-3 py-3 text-center font-bold text-amber-600 bg-amber-50/50">${countS}</td>
@@ -379,6 +418,27 @@
             document.getElementById('statIzin').innerText = i;
             document.getElementById('statSakit').innerText = s;
             document.getElementById('statAlpa').innerText = a;
+        }
+
+        // --- FITUR DOWNLOAD FILE HTML BARU PERMANEN ---
+        function downloadHTML() {
+            let docString = document.documentElement.outerHTML;
+
+            // Inject data terbaru langsung ke variabel default
+            const newDatesStr = `let attendanceDates = ${JSON.stringify(datesData, null, 12)};`;
+            const newStudentsStr = `let defaultStudents = ${JSON.stringify(studentsData, null, 12)};`;
+
+            docString = docString.replace(/let attendanceDates = \[[\s\S]*?\];/, newDatesStr);
+            docString = docString.replace(/let defaultStudents = \[[\s\S]*?\];/, newStudentsStr);
+
+            // Buat file blob dan trigger download
+            const blob = new Blob(["<!DOCTYPE html>\n" + docString], { type: "text/html;charset=utf-8" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "index.html";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         filterData();
