@@ -13,14 +13,14 @@
         <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">Portal Rekap Kehadiran Siswa</h1>
-                <p class="text-indigo-200 text-sm mt-1">Tambah tanggal/bulan, upload file siswa, atau klik kotak H/I/S/A untuk ubah status absensi.</p>
+                <p class="text-indigo-200 text-sm mt-1">Ubah data kehadiran, lalu klik tombol download untuk memperbarui file HTML secara permanen.</p>
             </div>
             <div class="flex flex-wrap gap-2">
-                <button onclick="toggleUploadModal()" class="bg-amber-500 hover:bg-amber-400 text-white font-bold py-2 px-4 rounded-lg text-sm shadow transition flex items-center gap-1">
-                    📤 Upload Data
+                <button onclick="downloadHTML()" class="bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-2 px-4 rounded-lg text-sm shadow transition flex items-center gap-2">
+                    📥 Download HTML Terkini
                 </button>
-                <button onclick="downloadHTML()" class="bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-2 px-4 rounded-lg text-sm shadow transition flex items-center gap-1">
-                    💾 Download HTML
+                <button onclick="toggleUploadModal()" class="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded-lg text-sm shadow transition">
+                    📁 Upload Data Siswa
                 </button>
                 <button onclick="toggleModal()" class="bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-2 px-4 rounded-lg text-sm shadow transition">
                     + Tambah Siswa
@@ -40,8 +40,23 @@
                     <label for="classSelect" class="font-semibold text-slate-700 whitespace-nowrap text-sm">Kelas:</label>
                     <select id="classSelect" onchange="filterData()" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg p-2.5 outline-none font-medium">
                         <option value="ALL">Semua Kelas</option>
-                        <option value="10-A">Kelas 10-A</option>
-                        <option value="10-B">Kelas 10-B</option>
+                        <optgroup label="Kelas 7">
+                            <option value="7-A">Kelas 7-A</option>
+                            <option value="7-B">Kelas 7-B</option>
+                            <option value="7-C" selected>Kelas 7-C</option>
+                        </optgroup>
+                        <optgroup label="Kelas 8">
+                            <option value="8-A">Kelas 8-A</option>
+                            <option value="8-B">Kelas 8-B</option>
+                            <option value="8-C">Kelas 8-C</option>
+                            <option value="8-D">Kelas 8-D</option>
+                        </optgroup>
+                        <optgroup label="Kelas 9">
+                            <option value="9-A">Kelas 9-A</option>
+                            <option value="9-B">Kelas 9-B</option>
+                            <option value="9-C">Kelas 9-C</option>
+                            <option value="9-D">Kelas 9-D</option>
+                        </optgroup>
                     </select>
                 </div>
 
@@ -87,317 +102,129 @@
                 <table class="w-full text-sm text-left text-slate-600">
                     <thead class="text-xs uppercase bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
                         <tr id="tableHeader">
-                            <!-- Header otomatis digenerate via JS -->
+                            <th class="px-4 py-3 text-center">No</th>
+                            <th class="px-4 py-3 text-center">Kelas</th>
+                            <th class="px-4 py-3 text-center">NIS</th>
+                            <th class="px-4 py-3">Nama Siswa</th>
+                            <th class="px-4 py-3 text-center">L/P</th>
+                            <!-- Kolom tanggal dinamis dimasukkan via JavaScript -->
+                            <th class="px-3 py-3 text-center text-emerald-700 bg-emerald-50">H</th>
+                            <th class="px-3 py-3 text-center text-blue-700 bg-blue-50">I</th>
+                            <th class="px-3 py-3 text-center text-amber-700 bg-amber-50">S</th>
+                            <th class="px-3 py-3 text-center text-rose-700 bg-rose-50">A</th>
+                            <th class="px-4 py-3 text-center bg-indigo-50 text-indigo-700">% Hadir</th>
+                            <th class="px-4 py-3 text-center">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="attendanceBody" class="divide-y divide-slate-100"></tbody>
+                    <tbody id="attendanceBody" class="divide-y divide-slate-100">
+                        <!-- Data siswa dirender via JS -->
+                    </tbody>
                 </table>
             </div>
-            
-            <div id="noDataMessage" class="hidden text-center py-12 text-slate-400">
-                <p class="text-base font-medium">Siswa tidak ditemukan</p>
-            </div>
         </div>
-
     </main>
 
-    <!-- Modal Form Tambah Siswa Manual -->
-    <div id="studentModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <!-- Modal Upload Data Siswa (CSV / Format Teks) -->
+    <div id="uploadModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-            <h3 class="text-lg font-bold text-slate-800 mb-4">Tambah Siswa Baru</h3>
-            <form onsubmit="addStudent(event)">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Kelas</label>
-                        <select id="addKelas" class="w-full p-2.5 border rounded-lg text-sm bg-slate-50">
-                            <option value="10-A">10-A</option>
-                            <option value="10-B">10-B</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">NIS</label>
-                        <input type="text" id="addNis" placeholder="Contoh: 1010" required class="w-full p-2.5 border rounded-lg text-sm bg-slate-50">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap</label>
-                        <input type="text" id="addNama" placeholder="Nama Siswa" required class="w-full p-2.5 border rounded-lg text-sm bg-slate-50">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Jenis Kelamin</label>
-                        <select id="addGender" class="w-full p-2.5 border rounded-lg text-sm bg-slate-50">
-                            <option value="L">Laki-laki (L)</option>
-                            <option value="P">Perempuan (P)</option>
-                        </select>
-                    </div>
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h3 class="text-lg font-bold text-slate-800">Upload Data Siswa (CSV/Excel Copy)</h3>
+                <button onclick="toggleUploadModal()" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih File CSV:</label>
+                    <input type="file" id="csvFileInput" accept=".csv, .txt" class="w-full text-sm border border-slate-300 rounded-lg p-2 bg-slate-50">
+                    <p class="text-[10px] text-slate-400 mt-1">Format kolom CSV: <strong>Kelas, NIS, Nama, Gender(L/P)</strong></p>
                 </div>
-                <div class="flex justify-end gap-2 mt-6">
-                    <button type="button" onclick="toggleModal()" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Batal</button>
-                    <button type="submit" class="px-4 py-2 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg">Simpan</button>
+                <div class="text-center font-bold text-xs text-slate-400">--- ATAU ---</div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Paste Teks (CSV / Tab Separated dari Excel):</label>
+                    <textarea id="pasteDataInput" rows="4" placeholder="7-C,121232170060267004,AGUNG PUTRA,L" class="w-full text-xs p-2 border border-slate-300 rounded-lg font-mono focus:ring-indigo-500 outline-none"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="toggleUploadModal()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-semibold hover:bg-slate-200">Batal</button>
+                    <button type="button" onclick="processUploadData()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700">Proses Import</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Tambah Siswa Manual -->
+    <div id="studentModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Tambah Siswa Baru</h3>
+            <form id="studentForm" onsubmit="saveStudent(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kelas</label>
+                    <select id="modalClass" required class="w-full border border-slate-300 rounded-lg p-2 text-sm">
+                        <option value="7-A">7-A</option>
+                        <option value="7-B">7-B</option>
+                        <option value="7-C" selected>7-C</option>
+                        <option value="8-A">8-A</option>
+                        <option value="8-B">8-B</option>
+                        <option value="8-C">8-C</option>
+                        <option value="8-D">8-D</option>
+                        <option value="9-A">9-A</option>
+                        <option value="9-B">9-B</option>
+                        <option value="9-C">9-C</option>
+                        <option value="9-D">9-D</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">NIS</label>
+                    <input type="text" id="modalNIS" required class="w-full border border-slate-300 rounded-lg p-2 text-sm font-mono">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Lengkap</label>
+                    <input type="text" id="modalName" required class="w-full border border-slate-300 rounded-lg p-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Kelamin</label>
+                    <select id="modalGender" required class="w-full border border-slate-300 rounded-lg p-2 text-sm">
+                        <option value="L">Laki-laki (L)</option>
+                        <option value="P">Perempuan (P)</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="toggleModal()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-semibold hover:bg-slate-200">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal Upload File Siswa (CSV/JSON) -->
-    <div id="uploadModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-            <h3 class="text-lg font-bold text-slate-800 mb-2">Upload Data Siswa</h3>
-            <p class="text-xs text-slate-500 mb-4">Pilih file berformat <b>.CSV</b> atau <b>.JSON</b> untuk memasukkan daftar siswa baru secara massal.</p>
-            
-            <div class="space-y-4">
-                <input type="file" id="importFileInput" accept=".csv, .json" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"/>
-                
-                <div class="bg-amber-50 p-3 rounded-lg border border-amber-200">
-                    <p class="text-xs text-amber-800 font-semibold mb-1">Format Kolom CSV:</p>
-                    <p class="text-[11px] text-amber-700 font-mono">kelas, nis, nama, gender</p>
-                    <button onclick="downloadCSVTemplate()" class="mt-2 text-xs text-amber-800 underline font-semibold">⬇️ Download Template CSV Contoh</button>
-                </div>
-            </div>
-
-            <div class="flex justify-end gap-2 mt-6">
-                <button type="button" onclick="toggleUploadModal()" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Batal</button>
-                <button type="button" onclick="processUploadedFile()" class="px-4 py-2 text-sm font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-lg">Proses Upload</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Script Logika Absensi & Modul Import -->
     <script>
-        // Data tanggal rekap (Bisa ditambah/dihapus)
-        let attendanceDates = JSON.parse(localStorage.getItem('absensi_dates')) || ["01/08", "02/08", "03/08", "04/08", "05/08"];
-
-        // Data Siswa Default
-        let defaultStudents = [
-            { id: 1, kelas: "10-A", nis: "1001", nama: "Ahmad Fauzi", gender: "L", attendance: ["H", "H", "H", "S", "H"] },
-            { id: 2, kelas: "10-A", nis: "1002", nama: "Budi Santoso", gender: "L", attendance: ["H", "H", "I", "H", "H"] }
+        let dates = ["03/08", "04/08", "05/08", "06/08", "07/08", "10/08", "11/08", "12/08", "13/08", "14/08"];
+        
+        let students = [
+            { id: 1786773838934, class: "7-C", nis: "121232170060267004", name: "AGUNG PUTRA MUHAMAD HIDAYAT", gender: "L", attendance: ["H","H","H","H","H","H","H","H","H","H"] },
+            { id: 1786773853845, class: "7-C", nis: "121232170060267007", name: "AHMAD MAULANA", gender: "L", attendance: ["H","H","H","H","H","H","H","H","H","H"] },
+            { id: 1786773868483, class: "7-C", nis: "121232170060267011", name: "ALIKA ARIESTYA", gender: "P", attendance: ["H","H","H","H","H","H","H","H","H","H"] },
+            { id: 1786773886342, class: "7-C", nis: "121232170060267035", name: "IGFAR RAMADAN", gender: "L", attendance: ["H","H","H","H","H","H","H","H","H","H"] },
+            { id: 1786773899205, class: "7-C", nis: "121232170060267036", name: "ILHAM FADILLAH", gender: "L", attendance: ["H","H","H","H","H","H","H","H","H","H"] },
+            { id: 1786773913093, class: "7-C", nis: "121232170060267037", name: "ILHAM LATIF", gender: "L", attendance: ["H","H","H","H","H","H","H","H","H","H"] }
         ];
 
-        let studentsData = JSON.parse(localStorage.getItem('absensi_students')) || defaultStudents;
+        const statusCycle = ["H", "I", "S", "A"];
+        const statusStyles = {
+            "H": "bg-emerald-100 text-emerald-700 hover:bg-emerald-200",
+            "I": "bg-blue-100 text-blue-700 hover:bg-blue-200",
+            "S": "bg-amber-100 text-amber-700 hover:bg-amber-200",
+            "A": "bg-rose-100 text-rose-700 hover:bg-rose-200"
+        };
 
-        function saveData() {
-            localStorage.setItem('absensi_students', JSON.stringify(studentsData));
-            localStorage.setItem('absensi_dates', JSON.stringify(attendanceDates));
-            filterData();
-        }
-
-        function toggleModal() {
-            document.getElementById('studentModal').classList.toggle('hidden');
-        }
-
-        function toggleUploadModal() {
-            document.getElementById('uploadModal').classList.toggle('hidden');
-        }
-
-        // Tambah Kolom Tanggal Baru
-        function addDateColumn() {
-            const dateVal = document.getElementById('newDateInput').value;
-            if(!dateVal) return alert("Pilih tanggal terlebih dahulu!");
-
-            // Format dari YYYY-MM-DD ke DD/MM
-            const [year, month, day] = dateVal.split('-');
-            const formattedDate = `${day}/${month}`;
-
-            if(attendanceDates.includes(formattedDate)) {
-                return alert("Tanggal ini sudah ada di tabel!");
-            }
-
-            attendanceDates.push(formattedDate);
-            
-            // Beri status default 'H' untuk tanggal baru ini di semua siswa
-            studentsData.forEach(student => {
-                student.attendance.push('H');
-            });
-
-            saveData();
-            document.getElementById('newDateInput').value = '';
-        }
-
-        // Hapus Kolom Tanggal
-        function removeDateColumn(index) {
-            if(confirm(`Hapus kolom tanggal ${attendanceDates[index]}?`)) {
-                attendanceDates.splice(index, 1);
-                studentsData.forEach(student => {
-                    student.attendance.splice(index, 1);
-                });
-                saveData();
-            }
-        }
-
-        function addStudent(e) {
-            e.preventDefault();
-            // Inisialisasi status 'H' sejumlah tanggal yang ada
-            const initialAttendance = new Array(attendanceDates.length).fill('H');
-
-            const newStudent = {
-                id: Date.now(),
-                kelas: document.getElementById('addKelas').value,
-                nis: document.getElementById('addNis').value,
-                nama: document.getElementById('addNama').value,
-                gender: document.getElementById('addGender').value,
-                attendance: initialAttendance
-            };
-
-            studentsData.push(newStudent);
-            saveData();
-            
-            document.getElementById('addNis').value = '';
-            document.getElementById('addNama').value = '';
-            toggleModal();
-        }
-
-        function deleteStudent(id) {
-            if(confirm("Apakah Anda yakin ingin menghapus siswa ini?")) {
-                studentsData = studentsData.filter(s => s.id !== id);
-                saveData();
-            }
-        }
-
-        function toggleAttendance(studentId, dayIndex) {
-            const student = studentsData.find(s => s.id === studentId);
-            if (!student) return;
-
-            const statuses = ['H', 'I', 'S', 'A'];
-            const currentStatus = student.attendance[dayIndex] || 'H';
-            const nextIndex = (statuses.indexOf(currentStatus) + 1) % statuses.length;
-            
-            student.attendance[dayIndex] = statuses[nextIndex];
-            saveData();
-        }
-
-        function renderBadge(status, studentId, dayIndex) {
-            let color = '';
-            switch(status) {
-                case 'H': color = 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'; break;
-                case 'I': color = 'bg-blue-100 text-blue-700 hover:bg-blue-200'; break;
-                case 'S': color = 'bg-amber-100 text-amber-700 hover:bg-amber-200'; break;
-                case 'A': color = 'bg-rose-100 text-rose-700 hover:bg-rose-200'; break;
-                default: color = 'bg-slate-100 text-slate-500';
-            }
-
-            return `<button onclick="toggleAttendance(${studentId}, ${dayIndex})" 
-                            title="Klik untuk merubah"
-                            class="w-7 h-7 rounded font-bold text-xs transition cursor-pointer active:scale-90 ${color}">
-                        ${status || 'H'}
-                    </button>`;
-        }
-
-        // --- FUNGSI UPLOAD DATA (CSV/JSON) ---
-        function processUploadedFile() {
-            const fileInput = document.getElementById('importFileInput');
-            const file = fileInput.files[0];
-
-            if (!file) {
-                return alert("Silakan pilih file CSV atau JSON terlebih dahulu!");
-            }
-
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                const content = e.target.result;
-                let newStudentsArr = [];
-
-                try {
-                    if (file.name.endsWith('.json')) {
-                        newStudentsArr = JSON.parse(content);
-                    } else if (file.name.endsWith('.csv')) {
-                        const lines = content.split('\n');
-                        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-
-                        for (let i = 1; i < lines.length; i++) {
-                            if (!lines[i].trim()) continue;
-                            const values = lines[i].split(',').map(v => v.trim());
-                            
-                            let obj = {};
-                            headers.forEach((header, index) => {
-                                obj[header] = values[index] || '';
-                            });
-
-                            if (obj.nama && obj.nis) {
-                                newStudentsArr.push({
-                                    id: Date.now() + i,
-                                    kelas: obj.kelas || "10-A",
-                                    nis: obj.nis,
-                                    nama: obj.nama,
-                                    gender: (obj.gender || "L").toUpperCase(),
-                                    attendance: new Array(attendanceDates.length).fill('H')
-                                });
-                            }
-                        }
-                    }
-
-                    if (newStudentsArr.length === 0) {
-                        return alert("Gagal membaca data dari file! Pastikan format kolom sesuai.");
-                    }
-
-                    // Gabungkan data baru ke daftar siswa yang ada
-                    studentsData = [...studentsData, ...newStudentsArr];
-                    saveData();
-                    toggleUploadModal();
-                    fileInput.value = '';
-                    alert(`Berhasil menambahkan ${newStudentsArr.length} siswa baru!`);
-
-                } catch (err) {
-                    alert("Terjadi kesalahan saat memproses file: " + err.message);
-                }
-            };
-
-            reader.readAsText(file);
-        }
-
-        function downloadCSVTemplate() {
-            const csvContent = "kelas,nis,nama,gender\n10-A,1003,CONTOH SISWA BARU,L";
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "template_siswa.csv";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function downloadHTML() {
-            let docString = document.documentElement.outerHTML;
-
-            const newDatesStr = `let attendanceDates = ${JSON.stringify(attendanceDates, null, 12)};`;
-            const newStudentsStr = `let defaultStudents = ${JSON.stringify(studentsData, null, 12)};`;
-
-            docString = docString.replace(/let attendanceDates = JSON\.parse\(localStorage\.getItem\('absensi_dates'\)\) \|\| \[[\s\S]*?\];/, newDatesStr);
-            docString = docString.replace(/let defaultStudents = \[[\s\S]*?\];/, newStudentsStr);
-
-            const blob = new Blob(["<!DOCTYPE html>\n" + docString], { type: "text/html;charset=utf-8" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "index.html";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function filterData() {
-            const selectedClass = document.getElementById('classSelect').value;
-            const searchKeyword = document.getElementById('searchInput').value.toLowerCase();
-            const tbody = document.getElementById('attendanceBody');
-            const theadRow = document.getElementById('tableHeader');
-            const noDataMsg = document.getElementById('noDataMessage');
-
-            // Render Header Tabel Dinamis
-            let headerHTML = `
+        function renderTable() {
+            const headerRow = document.getElementById("tableHeader");
+            const staticFrontHeader = `
                 <th class="px-4 py-3 text-center">No</th>
                 <th class="px-4 py-3 text-center">Kelas</th>
                 <th class="px-4 py-3 text-center">NIS</th>
                 <th class="px-4 py-3">Nama Siswa</th>
                 <th class="px-4 py-3 text-center">L/P</th>
             `;
-
-            attendanceDates.forEach((dateStr, idx) => {
-                headerHTML += `
-                    <th class="px-3 py-3 text-center bg-slate-200/50 group relative">
-                        <span>${dateStr}</span>
-                        <button onclick="removeDateColumn(${idx})" title="Hapus tanggal ini" class="block mx-auto text-[10px] text-rose-500 hover:underline">Hapus</button>
-                    </th>
-                `;
-            });
-
-            headerHTML += `
+            const staticBackHeader = `
                 <th class="px-3 py-3 text-center text-emerald-700 bg-emerald-50">H</th>
                 <th class="px-3 py-3 text-center text-blue-700 bg-blue-50">I</th>
                 <th class="px-3 py-3 text-center text-amber-700 bg-amber-50">S</th>
@@ -405,69 +232,225 @@
                 <th class="px-4 py-3 text-center bg-indigo-50 text-indigo-700">% Hadir</th>
                 <th class="px-4 py-3 text-center">Aksi</th>
             `;
-            theadRow.innerHTML = headerHTML;
 
-            tbody.innerHTML = '';
+            let dateHeaders = dates.map((d, index) => `
+                <th class="px-3 py-3 text-center bg-slate-200/50 group relative">
+                    <span>${d}</span>
+                    <button onclick="removeDateColumn(${index})" title="Hapus tanggal ini" class="block mx-auto text-[10px] text-rose-500 hover:underline">Hapus</button>
+                </th>
+            `).join('');
 
-            let filtered = studentsData.filter(student => {
-                const matchClass = (selectedClass === 'ALL') || (student.kelas === selectedClass);
-                const matchSearch = student.nama.toLowerCase().includes(searchKeyword) || student.nis.includes(searchKeyword);
+            headerRow.innerHTML = staticFrontHeader + dateHeaders + staticBackHeader;
+
+            filterData();
+        }
+
+        function filterData() {
+            const selectedClass = document.getElementById("classSelect").value;
+            const searchInput = document.getElementById("searchInput").value.toLowerCase();
+            const tbody = document.getElementById("attendanceBody");
+
+            tbody.innerHTML = "";
+
+            let filtered = students.filter(student => {
+                const matchClass = (selectedClass === "ALL" || student.class === selectedClass);
+                const matchSearch = student.name.toLowerCase().includes(searchInput) || student.nis.includes(searchInput);
                 return matchClass && matchSearch;
             });
 
-            if (filtered.length === 0) {
-                noDataMsg.classList.remove('hidden');
-                updateStats(0, 0, 0, 0);
-                return;
-            } else {
-                noDataMsg.classList.add('hidden');
-            }
-
-            let totH = 0, totI = 0, totS = 0, totA = 0;
+            let totalH = 0, totalI = 0, totalS = 0, totalA = 0;
 
             filtered.forEach((student, index) => {
-                const countH = student.attendance.filter(x => x === 'H').length;
-                const countI = student.attendance.filter(x => x === 'I').length;
-                const countS = student.attendance.filter(x => x === 'S').length;
-                const countA = student.attendance.filter(x => x === 'A').length;
-
-                totH += countH; totI += countI; totS += countS; totA += countA;
+                let h = 0, i = 0, s = 0, a = 0;
                 
-                const totalDays = attendanceDates.length || 1;
-                const percentage = Math.round((countH / totalDays) * 100);
+                let attendanceCells = student.attendance.map((status, dateIdx) => {
+                    if (status === "H") h++;
+                    if (status === "I") i++;
+                    if (status === "S") s++;
+                    if (status === "A") a++;
+                    
+                    return `
+                        <td class="px-3 py-3 text-center">
+                            <button onclick="toggleAttendance(${student.id}, ${dateIdx})" title="Klik untuk mengubah status" class="w-7 h-7 rounded font-bold text-xs transition cursor-pointer active:scale-90 ${statusStyles[status]}">
+                                ${status}
+                            </button>
+                        </td>
+                    `;
+                }).join('');
 
-                const row = document.createElement('tr');
-                row.className = "hover:bg-slate-50 transition-colors";
-                row.innerHTML = `
-                    <td class="px-4 py-3 text-center font-medium text-slate-500">${index + 1}</td>
-                    <td class="px-4 py-3 text-center"><span class="px-2 py-1 text-xs bg-slate-100 border rounded font-semibold text-slate-600">${student.kelas}</span></td>
-                    <td class="px-4 py-3 text-center font-mono text-xs">${student.nis}</td>
-                    <td class="px-4 py-3 font-semibold text-slate-800">${student.nama}</td>
-                    <td class="px-4 py-3 text-center text-xs text-slate-500">${student.gender}</td>
-                    ${attendanceDates.map((_, dayIdx) => `<td class="px-3 py-3 text-center">${renderBadge(student.attendance[dayIdx], student.id, dayIdx)}</td>`).join('')}
-                    <td class="px-3 py-3 text-center font-bold text-emerald-600 bg-emerald-50/50">${countH}</td>
-                    <td class="px-3 py-3 text-center font-bold text-blue-600 bg-blue-50/50">${countI}</td>
-                    <td class="px-3 py-3 text-center font-bold text-amber-600 bg-amber-50/50">${countS}</td>
-                    <td class="px-3 py-3 text-center font-bold text-rose-600 bg-rose-50/50">${countA}</td>
-                    <td class="px-4 py-3 text-center font-bold text-indigo-600 bg-indigo-50/50">${percentage}%</td>
-                    <td class="px-4 py-3 text-center">
-                        <button onclick="deleteStudent(${student.id})" class="text-xs text-rose-500 hover:text-rose-700 font-semibold">Hapus</button>
-                    </td>
+                totalH += h; totalI += i; totalS += s; totalA += a;
+
+                let totalHari = student.attendance.length;
+                let persen = totalHari > 0 ? Math.round((h / totalHari) * 100) : 0;
+
+                let rowHTML = `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-4 py-3 text-center font-medium text-slate-500">${index + 1}</td>
+                        <td class="px-4 py-3 text-center"><span class="px-2 py-1 text-xs bg-slate-100 border rounded font-semibold text-slate-600">${student.class}</span></td>
+                        <td class="px-4 py-3 text-center font-mono text-xs">${student.nis}</td>
+                        <td class="px-4 py-3 font-semibold text-slate-800">${student.name}</td>
+                        <td class="px-4 py-3 text-center text-xs text-slate-500">${student.gender}</td>
+                        ${attendanceCells}
+                        <td class="px-3 py-3 text-center font-bold text-emerald-600 bg-emerald-50/50">${h}</td>
+                        <td class="px-3 py-3 text-center font-bold text-blue-600 bg-blue-50/50">${i}</td>
+                        <td class="px-3 py-3 text-center font-bold text-amber-600 bg-amber-50/50">${s}</td>
+                        <td class="px-3 py-3 text-center font-bold text-rose-600 bg-rose-50/50">${a}</td>
+                        <td class="px-4 py-3 text-center font-bold text-indigo-600 bg-indigo-50/50">${persen}%</td>
+                        <td class="px-4 py-3 text-center">
+                            <button onclick="deleteStudent(${student.id})" class="text-xs text-rose-500 hover:text-rose-700 font-semibold">Hapus</button>
+                        </td>
+                    </tr>
                 `;
-                tbody.appendChild(row);
+                tbody.insertAdjacentHTML('beforeend', rowHTML);
             });
 
-            updateStats(totH, totI, totS, totA);
+            document.getElementById("statHadir").innerText = totalH;
+            document.getElementById("statIzin").innerText = totalI;
+            document.getElementById("statSakit").innerText = totalS;
+            document.getElementById("statAlpa").innerText = totalA;
         }
 
-        function updateStats(h, i, s, a) {
-            document.getElementById('statHadir').innerText = h;
-            document.getElementById('statIzin').innerText = i;
-            document.getElementById('statSakit').innerText = s;
-            document.getElementById('statAlpa').innerText = a;
+        function toggleAttendance(studentId, dateIdx) {
+            let student = students.find(s => s.id === studentId);
+            if (student) {
+                let currentStatus = student.attendance[dateIdx];
+                let nextIdx = (statusCycle.indexOf(currentStatus) + 1) % statusCycle.length;
+                student.attendance[dateIdx] = statusCycle[nextIdx];
+                filterData();
+            }
         }
 
-        filterData();
+        function addDateColumn() {
+            const input = document.getElementById("newDateInput");
+            if (!input.value) return alert("Pilih tanggal terlebih dahulu!");
+
+            const parts = input.value.split("-");
+            const formattedDate = `${parts[2]}/${parts[1]}`;
+
+            dates.push(formattedDate);
+            students.forEach(student => student.attendance.push("H"));
+
+            input.value = "";
+            renderTable();
+        }
+
+        function removeDateColumn(index) {
+            if (confirm(`Hapus tanggal ${dates[index]}?`)) {
+                dates.splice(index, 1);
+                students.forEach(student => student.attendance.splice(index, 1));
+                renderTable();
+            }
+        }
+
+        function toggleModal() {
+            document.getElementById("studentModal").classList.toggle("hidden");
+        }
+
+        function toggleUploadModal() {
+            document.getElementById("uploadModal").classList.toggle("hidden");
+        }
+
+        function saveStudent(e) {
+            e.preventDefault();
+            const newStudent = {
+                id: Date.now(),
+                class: document.getElementById("modalClass").value,
+                nis: document.getElementById("modalNIS").value,
+                name: document.getElementById("modalName").value.toUpperCase(),
+                gender: document.getElementById("modalGender").value,
+                attendance: new Array(dates.length).fill("H")
+            };
+            students.push(newStudent);
+            document.getElementById("studentForm").reset();
+            toggleModal();
+            filterData();
+        }
+
+        function deleteStudent(id) {
+            if (confirm("Yakin ingin menghapus siswa ini?")) {
+                students = students.filter(s => s.id !== id);
+                filterData();
+            }
+        }
+
+        // --- PEMROSES UPLOAD DATA SISWA (CSV / TEXT) ---
+        function processUploadData() {
+            const fileInput = document.getElementById("csvFileInput");
+            const pastedText = document.getElementById("pasteDataInput").value.trim();
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    parseCSVText(e.target.result);
+                };
+                reader.readAsText(file);
+            } else if (pastedText) {
+                parseCSVText(pastedText);
+            } else {
+                alert("Silakan pilih file CSV atau tempelkan data pada kolom yang tersedia.");
+            }
+        }
+
+        function parseCSVText(text) {
+            const lines = text.split(/\r\n|\n/);
+            let importedCount = 0;
+
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                // Pisahkan berdasarkan koma atau tab
+                const cols = line.split(/,|\t/).map(c => c.trim());
+                
+                // Format minimal: Kelas, NIS, Nama, Gender
+                if (cols.length >= 4) {
+                    const studentClass = cols[0];
+                    const nis = cols[1];
+                    const name = cols[2].toUpperCase();
+                    const gender = cols[3].toUpperCase();
+
+                    // Lewati baris header jika ada
+                    if (nis.toLowerCase() === "nis" || name.toLowerCase() === "nama") return;
+
+                    students.push({
+                        id: Date.now() + Math.floor(Math.random() * 1000),
+                        class: studentClass,
+                        nis: nis,
+                        name: name,
+                        gender: gender === "P" ? "P" : "L",
+                        attendance: new Array(dates.length).fill("H")
+                    });
+                    importedCount++;
+                }
+            });
+
+            if (importedCount > 0) {
+                alert(`Berhasil mengimpor ${importedCount} siswa!`);
+                document.getElementById("pasteDataInput").value = "";
+                document.getElementById("csvFileInput").value = "";
+                toggleUploadModal();
+                filterData();
+            } else {
+                alert("Format data tidak sesuai. Pastikan urutannya: Kelas, NIS, Nama, Gender.");
+            }
+        }
+
+        function downloadHTML() {
+            const scriptTag = `\n<script>\nlet dates = ${JSON.stringify(dates)};\nlet students = ${JSON.stringify(students)};\nconst statusCycle = ["H", "I", "S", "A"];\nconst statusStyles = ${JSON.stringify(statusStyles)};\n${renderTable.toString()}\n${filterData.toString()}\n${toggleAttendance.toString()}\n${addDateColumn.toString()}\n${removeDateColumn.toString()}\n${toggleModal.toString()}\n${toggleUploadModal.toString()}\n${saveStudent.toString()}\n${deleteStudent.toString()}\n${processUploadData.toString()}\n${parseCSVText.toString()}\n${downloadHTML.toString()}\nwindow.onload = renderTable;\n<\/script>`;
+
+            let doc = document.documentElement.cloneNode(true);
+            let oldScript = doc.querySelector("script:last-of-type");
+            if (oldScript) oldScript.remove();
+
+            let fullHTML = "<!DOCTYPE html>\n" + doc.outerHTML + scriptTag;
+            
+            let blob = new Blob([fullHTML], { type: "text/html" });
+            let a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "rekap_kehadiran_terkini.html";
+            a.click();
+        }
+
+        window.onload = renderTable;
     </script>
 </body>
 </html>
