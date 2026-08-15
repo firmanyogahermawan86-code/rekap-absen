@@ -419,6 +419,68 @@
             document.getElementById('statSakit').innerText = s;
             document.getElementById('statAlpa').innerText = a;
         }
+// --- FUNGSI UPLOAD DATA (CSV/JSON) ---
+        function processUploadedFile() {
+            const fileInput = document.getElementById('importFileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                return alert("Silakan pilih file CSV atau JSON terlebih dahulu!");
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const content = e.target.result;
+                let newStudentsArr = [];
+
+                try {
+                    if (file.name.endsWith('.json')) {
+                        newStudentsArr = JSON.parse(content);
+                    } else if (file.name.endsWith('.csv')) {
+                        const lines = content.split('\n');
+                        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+
+                        for (let i = 1; i < lines.length; i++) {
+                            if (!lines[i].trim()) continue;
+                            const values = lines[i].split(',').map(v => v.trim());
+                            
+                            let obj = {};
+                            headers.forEach((header, index) => {
+                                obj[header] = values[index] || '';
+                            });
+
+                            if (obj.nama && obj.nis) {
+                                newStudentsArr.push({
+                                    id: Date.now() + i,
+                                    kelas: obj.kelas || "10-A",
+                                    nis: obj.nis,
+                                    nama: obj.nama,
+                                    gender: (obj.gender || "L").toUpperCase(),
+                                    attendance: new Array(attendanceDates.length).fill('H')
+                                });
+                            }
+                        }
+                    }
+
+                    if (newStudentsArr.length === 0) {
+                        return alert("Gagal membaca data dari file! Pastikan format kolom sesuai.");
+                    }
+
+                    // Gabungkan data baru ke daftar siswa yang ada
+                    studentsData = [...studentsData, ...newStudentsArr];
+                    saveData();
+                    toggleUploadModal();
+                    fileInput.value = '';
+                    alert(`Berhasil menambahkan ${newStudentsArr.length} siswa baru!`);
+
+                } catch (err) {
+                    alert("Terjadi kesalahan saat memproses file: " + err.message);
+                }
+            };
+
+            reader.readAsText(file);
+        }
 
         // --- FITUR DOWNLOAD FILE HTML BARU PERMANEN ---
         function downloadHTML() {
